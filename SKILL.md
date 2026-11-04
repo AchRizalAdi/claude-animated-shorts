@@ -92,6 +92,12 @@ User rules that apply:
    - Set `BRIDGE_ENTRY=src/sandboxes/<n>/index.tsx` to render a sandbox copy.
    - Make side-by-sides against reference frames with `python scripts/sbs_sheet.py out.jpg --ours ... --ref ...`.
    - Send them to an Opus max verifier: 1-3 images, a ≤200-word verdict.
+9b. **Per-shot review loop (mandatory, replaces "render everything then fix").**
+    - Stage 1, stills: one still per shot at 0.5 scale (3-8 s each) for the user. Fix, then re-send only changed shots.
+    - Stage 2, clips: per-shot 540x960 clip with `npx remotion render src/index.ts <Comp> out/<name>/clips/shot<NN>.mp4 --frames=<a>-<b> --scale 0.5 --crf 24` (a, b from `SHOTS`). Mux that shot's voice slice to check lip/word sync. A clip takes under a minute.
+    - Every user note goes in `projects/<name>/REVISIONS.md` as `[date] shot # | frames | issue | cause | fix | status`. Keep it current after every fix. Status moves open -> fixed -> verified only after the user has seen the new still/clip.
+    - Stage 3: full 2K render ONCE, only when every shot is verified. Then QA (`short_qa.py`).
+    - A change in `world.ts` / `lights.ts` / `grade.ts` / `ink.ts` touches every shot, so re-send a contact sheet of all stills. A change in one shot's camera or cast only needs that shot.
 10. **Final render.**
     - `npx remotion render src/index.ts <Comp> out/<name>/video.mp4 --codec h264 --crf 16 --scale 1.3333`
     - Mux with `-map 0:v:0 -map 1:a:0` (Remotion writes a silent audio track).
