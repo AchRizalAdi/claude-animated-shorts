@@ -16,7 +16,7 @@ The style reference is a channel studied privately (`references/`: STYLE_BIBLE.m
 - Never say the channel's name in a voice-over or description.
 
 User rules that apply:
-- **Burned-in subtitles REQUIRED** (dedicated subtitle layer inside the video, overrides the old "no captions" rule). Render as a Remotion HTML overlay above the three.js canvas, driven by `words.json` (1-3 words per chunk, synced to word start, fixed safe-area position). Visual style = the user's reference image (see `references/subtitle-style.md`; ask for it if missing). No other overlay labels; in-world text on props is fine.
+- **Burned-in subtitles REQUIRED** (dedicated subtitle layer inside the video, overrides the old "no captions" rule). Render as a Remotion HTML overlay above the three.js canvas, driven by `words.json` (1-3 words per chunk, synced to word start, fixed safe-area position). Style is locked in `references/subtitle-style.md` (lowercase Montserrat ExtraBold, white, thick black stroke, hard shadow, no box, 74 % height). Component: `templates/bridge/Subtitles.tsx`. No other overlay labels; in-world text on props is fine.
 - English only.
 - Voice: one steady tone.
 - Jokes are researched real facts.
