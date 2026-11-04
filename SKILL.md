@@ -20,30 +20,33 @@ User rules that apply:
 - English only.
 - Voice: one steady tone.
 - Jokes are researched real facts.
-- Standard mix: music +3 dB, SFX -6 dB, voice unchanged.
+- **No music** (SFX + ambience + voice only; set `music` stem to zero / omit `music.py`). Master to −15 LUFS, −1.2 dBTP.
+- **Never reskin the bridge world (`templates/bridge/build.ts` + `world.ts`) for non-bridge stories.** Research the real historical/modern places on Google/Wikipedia first, then build isolated **Multi-Set / Era Zones** using real CC0 3D kitbash models (`.glb` Kenney / Quaternius / Poly Pizza) rather than crude primitive box stacks.
 - Final export 2K vertical: 1440x2560, `--scale 1.3333`.
 - Opus max verifies every check.
 - Save after every step.
 - "Just do it" once the script is approved.
 
 ## Pipeline
-1. **Topic and facts.** Pick one surprising true story with a physical cause and effect (it should be visual), plus a simple everyday analogy that explains it.
+1. **Topic, facts, and visual place research.** Pick one surprising true story with a physical cause and effect (it should be visual), plus a simple everyday analogy that explains it.
    - Write the facts with their source at the top of `SCRIPT.md`.
+   - Research the actual places, eras, architecture, vehicles, and props on Google/Wikipedia before touching 3D code. List the distinct visual sets needed (e.g. Set A: Historical era, Set B: Analogy stage, Set C: Modern era).
 2. **Script** (~3.7 words/s, 55-70 s). Beat formula from the bridge short:
    - **Hook:** the absurd fact in one line ("Seventy-four soldiers knocked down an iron bridge just by walking across it.").
    - **Setting:** year, place, pride.
    - **Action:** escalation over three or four beats, each a little bigger.
    - **Snap:** the moment it breaks.
    - **Deadpan double line:** "Luckily ... / Unluckily ...".
-   - **Explanation:** one physics idea through an everyday analogy (the kid on a swing).
+   - **Explanation:** one physics/logic idea through an everyday analogy.
    - **Consequence:** the rule it created.
    - **Callback twist:** the ending.
    - Never describe on screen what the viewer already sees.
 3. **Voice.** Record or generate `voice.wav`, then make its word timings `words.json` (any speech-to-text with word times).
-   - Put them in the project folder, e.g. `~/bridge-short/voice/`.
+   - Put them in the project folder, e.g. `projects/<name>/voice/`.
    - Hand-fix the word timings. Everything is timed to words.json.
-4. **Shot plan** in `story.ts`: copy `templates/bridge/` (the final bridge source, same as `src/videos/bridge/` of your Remotion project) to `src/videos/<name>/`, register a new composition next to `BridgeShort` in `src/Root.tsx`, and rename it.
-   - `SHOTS`: id, a/b frames, light day/golden, crowd mode, `tau` story time.
+4. **Shot plan & Scene Staging** in `story.ts`: copy `templates/bridge/` to `src/videos/<name>/` for the shader/post/camera rig ONLY, register a new composition in `src/Root.tsx`, and replace the story/world/build/cast completely.
+   - `SHOTS`: id, a/b frames, `set` (which isolated 3D zone is visible in this shot), light day/golden, crowd mode, `tau` story time.
+   - **Shot-by-shot staging rule:** Every shot must have a dedicated stage, clear foreground/midground/background composition, and deliberate character choreography (never just 14 camera angles orbiting the same static patch of ground).
    - `XFADE`: crossfades at place/time changes.
    - `FLASH_AT`: a white flash after the hook.
    - `CAMS`: per-shot keys `{f, dur?, cut?, s: f => {pos, look, fov, roll}}`.
@@ -51,22 +54,24 @@ User rules that apply:
    - `DOF`/`dofAt`: lens blur per beat.
    - `FOREGROUND`: near framing props.
    - Every visual reaction lands 0-3 frames before its word.
-5. **World.**
+5. **World & Multi-Set Architecture (NO single-world clutter, NO primitive box-stacking for complex objects).**
+   - **Multi-Set isolation (`world.ts`):** Never cram 1950s huts, analogy props, and modern skyscrapers onto one shared patch of ground where they bleed into each other's backgrounds. Place each era/location in its own spatially separated zone (e.g. `z = 0`, `z = 400`, `z = 800`) OR toggle group `.visible = (shot.set === 'era_a')` per shot so every background is 100% period-accurate and uncluttered.
+   - **3D Kitbash over primitive boxes (`build.ts`):** Do NOT build cars, boats, cranes, temples, or detailed buildings out of raw `THREE.BoxGeometry` / `CylinderGeometry` — primitive box stacks look like cheap blocks. Download and use proper CC0 `.glb` kits (Kenney / Quaternius / Poly Pizza: vehicles, ships, city kits, modular buildings, furniture, nature) and recolour their materials through `shade.ts` (`toonMat` / `untone`) so they get the exact same 2-tone cel shade and `InkPass` outlines as the rest of the world. Reserve procedural geometry strictly for terrain, water, roads, walls, and simple architectural bases with HD painted textures (`paint.ts`).
    - `lights.ts`: LIGHTS plus the LOOK sky/river/cloud palette per light.
    - `shade.ts`: two-tone shading and `untone()`.
-   - `build.ts`: town, houses and Kenney CC0 kit props, recoloured, with sight-line culling of anything blocking a camera.
    - `paint.ts`: HD Canvas2D painted textures with seams painted in as dark tints.
-   - `world.ts`: sky shader, fog = horizon colour, river, per-frame posing, sun frozen per shot and camera-relative.
-6. **Characters.**
+   - `world.ts`: sky shader, fog = horizon colour, per-shot set visibility, per-frame posing, sun frozen per shot and camera-relative.
+6. **Characters & Choreography.**
    - `toon.ts`: the Canvas2D `Pen` drawing API, 600x1000 design canvas, soles at y = 975, bean heads, stick limbs, plum variable-width outline, face library.
    - `cast.ts`: camera-facing billboards, crowds, effect cards, blinks, walk cycles. All billboards go on the `NOINK` layer.
+   - **Blocking rule:** Characters must perform shot-specific actions (handing over a contract, bowing in a tatami room, pointing at a chart, carrying a prop) staged specifically for that shot's camera lens—never leave unrelated crowds standing idle in the background of another scene.
    - `cardshade.ts`: cards lit by the scene light, no emissive.
 7. **Post** (`Bridge.tsx` + `ink.ts` + `lensblur.ts` + `grade.ts`).
    - Composer order: ink → lens pre → lens main → bloom → NEUTRAL tone map → grade (MSAA 4).
    - Every pixel parameter scales with output height / 1920.
-8. **Sound** (`~/bridge-short/audio/`: timeline.py, sfx_gen.py, sfx.py, music.py, instruments.py, dsp.py, mix.py).
-   - Event table → synthesized SFX plus an original score ducked under the voice.
-   - Output: mix.wav (48 kHz, exact length), stems and cues.md.
+8. **Sound (NO MUSIC — Voice + SFX only)** (`audio/`: timeline.py, sfx_gen.py, sfx.py, dsp.py, mix.py).
+   - Event table → synthesized SFX + room/outdoor ambience under the voice. **Never include background music.**
+   - Output: mix.wav (48 kHz, exact length, −15 LUFS, −1.2 dBTP), stems and cues.md.
    - Lock the picture's time constants before the sound is made. Any later timing change means re-running the sound.
 9. **Look checks.** Run `node scripts/bridge-stills.mjs out/<name>/x_ 100,400 0.5`.
    - Set `BRIDGE_ENTRY=src/sandboxes/<n>/index.tsx` to render a sandbox copy.
