@@ -16,7 +16,7 @@ The style reference is a channel studied privately (`references/`: STYLE_BIBLE.m
 - Never say the channel's name in a voice-over or description.
 
 User rules that apply:
-- No captions or labels in the video.
+- **Burned-in subtitles REQUIRED** (dedicated subtitle layer inside the video, overrides the old "no captions" rule). Render as a Remotion HTML overlay above the three.js canvas, driven by `words.json` (1-3 words per chunk, synced to word start, fixed safe-area position). Visual style = the user's reference image (see `references/subtitle-style.md`; ask for it if missing). No other overlay labels; in-world text on props is fine.
 - English only.
 - Voice: one steady tone.
 - Jokes are researched real facts.
@@ -41,6 +41,18 @@ User rules that apply:
    - **Consequence:** the rule it created.
    - **Callback twist:** the ending.
    - Never describe on screen what the viewer already sees.
+   - **Viral storytelling rules** (measured from a 65 s viral reference, see `references/storytelling-viral.md`):
+     - Hook = a concrete visual oddity, then sharpen it ("...pink. And not just any pink.").
+     - Narrate in **present tense**; past tense only for the hook.
+     - Keep people anonymous ("a scientist", "the guards", "a bank clerk"). Names, dates and places go on props, not in the VO.
+     - Concrete numbers everywhere (1 pint, 300 lb, 2 seconds). Plant ONE number/motif early and repeat it (15 minutes said 5x) so the twist pays it off.
+     - One short in-character quip line (~1.5 s) in the first quarter.
+     - Escalate by extreme contrast (biggest inmate vs skinniest guard).
+     - Viewer-proxy beat after the surprise ("Wait, what?" / "Well, nobody can explain it.").
+     - Turn with "Until one night..." (a mistake or accident reveals the truth). Use a rule-of-three countdown (15 sitting / 20 pacing / rip the bench).
+     - "You see," explanation goes late (~80% of the runtime), 2-3 lines max.
+     - End hard on the reversal. No outro, no CTA, so the last line loops into the hook.
+     - Sentences average ~10 words, ~3.6 words/s.
 3. **Voice.** Record or generate `voice.wav`, then make its word timings `words.json` (any speech-to-text with word times).
    - Put them in the project folder, e.g. `projects/<name>/voice/`.
    - Hand-fix the word timings. Everything is timed to words.json.
